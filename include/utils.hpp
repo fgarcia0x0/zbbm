@@ -41,8 +41,8 @@ namespace zbbm::detail
     {
         size_t len_str {0U};
         
-        file_stream.read(reinterpret_cast<char *>(&str), sizeof(len_str));
-        str.resize(len_str);
+        file_stream.read(reinterpret_cast<char *>(&len_str), sizeof(len_str));
+        str.resize(len_str + 1);
         file_stream.read(str.data(), len_str);
     }
 
