@@ -8,7 +8,7 @@ set(ZBBM_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ZBBM_BASE_DIR}/bin/${ZBBM_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ZBBM_BASE_DIR}/bin/${ZBBM_BUILD_TYPE})
 
-file(GLOB_RECURSE ZBBM_SRCS RELATIVE ${CMAKE_SOURCE_DIR} "src/*.cpp")
+file(GLOB_RECURSE ZBBM_SRCS RELATIVE ${ZBBM_BASE_DIR} "src/*.cpp")
 add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-unused-function -Wdouble-promotion -Wformat-overflow -Wformat-security -Wnull-dereference -Wmisleading-indentation -Wconversion -Wshadow -Wcast-qual -Wcast-align -Waddress)
 
 add_executable(zebigods_book_manager ${ZBBM_SRCS})
