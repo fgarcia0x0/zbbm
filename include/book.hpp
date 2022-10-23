@@ -22,8 +22,8 @@ namespace zbbm
 {
     struct book
     {
-        std::string name;
         std::string isbn;
+        std::string name;
         std::string author;
         std::vector<std::string> co_authors;
         std::string publisher;
