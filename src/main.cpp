@@ -7,7 +7,7 @@
 int main(int argc, char** argv)
 {
     std::cout << "zbbm init" << '\n';
-    std::ofstream file1("Books", std::ios::binary);
+    std::ofstream file1("Books.bin", std::ios::binary);
 
     if (!file1.is_open())
         std::cerr << "Deu ruim abrir o jona vittar", exit(EXIT_FAILURE);
