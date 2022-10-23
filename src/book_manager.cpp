@@ -9,6 +9,8 @@ namespace zbbm
     book_manager::book_manager(const fs::path& filepath)
         : m_filepath{ filepath }
     {
+        if (!fs::exists(filepath) || !fs::is_regular_file(filepath))
+            throw std::invalid_argument{ "Invalid filepath" };
     }
 
     void book_manager::add(const book& book)
@@ -45,6 +47,15 @@ namespace zbbm
     bool book_manager::save()
     {
         return save(m_filepath);
+    }
+
+    std::optional<book> book_manager::find(std::string_view isbn) const noexcept
+    {
+        for (const auto& book : m_books)
+            if (book.isbn == isbn)
+                return book;
+
+        return std::nullopt;
     }
 
 } // namespace zbbm

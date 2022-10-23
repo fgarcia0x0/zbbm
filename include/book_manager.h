@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <string_view>
+#include <optional>
 
 #include <filesystem>
 
@@ -16,6 +17,11 @@ namespace zbbm
     class book_manager
     {
     public:
+        /**
+         * @brief Construct a new book manager object
+         * 
+         * @param filepath o caminho do arquivo do database
+         */
         book_manager(const fs::path& filepath);
 
         /**
@@ -55,9 +61,34 @@ namespace zbbm
          */
         bool save();
 
+        /**
+         * @brief Adquire a lista de livros
+         * 
+         * @return a lista de livros
+         */
+        [[nodiscard]]
         const auto& books() const
         {
             return m_books;
+        }
+
+        /**
+         * @brief Busca um livro apartir do seu ISBN
+         * 
+         * @param isbn o isbn do livro
+         * @return std::optional<book> 
+         */
+        [[nodiscard]]
+        std::optional<book> find(std::string_view isbn) const noexcept;
+
+        book& operator[](size_t index)
+        {
+            return m_books[index];
+        }
+
+        const book& operator[](size_t index) const
+        {
+            return m_books[index];
         }
 
     private:
