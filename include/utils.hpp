@@ -57,8 +57,12 @@ namespace zbbm::detail
         size_t n_authors {0};
         file_stream.read(reinterpret_cast<char *>(&n_authors), sizeof(n_authors));
         
+        obook.co_authors.resize(n_authors);
+
         for(size_t idx {}; idx < n_authors; ++idx)
+        {
             read_str(file_stream , obook.co_authors[idx]);
+        }
 
         read_str(file_stream , obook.publisher);
         read_str(file_stream , obook.launch_date);
