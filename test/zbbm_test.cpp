@@ -3,6 +3,7 @@
 
 int main(int argc, char** argv)
 {
-    std::cout << "BookManager Test Init" << '\n';
+    // chamar suas funcoes de test AQ
+    std::cout << "ZBBM Test Init" << '\n';
     return {};
 }
