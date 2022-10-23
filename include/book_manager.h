@@ -25,6 +25,12 @@ namespace zbbm
         book_manager(const fs::path& filepath);
 
         /**
+         * @brief 
+         * 
+         */
+        void update();
+
+        /**
          * @brief adiciona um livro ao book_manager
          * 
          * @param book o livro a ser adicionado

@@ -6,13 +6,30 @@
 
 namespace zbbm
 {
+    void book_manager::update()
+    {
+        if (fs::exists(m_filepath) && fs::is_regular_file(m_filepath))
+        {
+            // clear all books
+            clear();
+            
+            std::ifstream input{ m_filepath, std::ios::binary };
+
+            while (input)
+            {
+                auto book = zbbm::detail::read(input);
+                if (book.has_value())
+                    m_books.push_back(book.value());
+            }
+        }
+    }
+
     book_manager::book_manager(const fs::path& filepath)
         : m_filepath{ filepath }
     {
-        if (!fs::exists(filepath) || !fs::is_regular_file(filepath))
-            throw std::invalid_argument{ "Invalid filepath" };
+        update();
     }
-
+    
     void book_manager::add(const book& book)
     {
         m_books.push_back(book);
@@ -34,7 +51,7 @@ namespace zbbm
 
     bool book_manager::save(const fs::path& filepath)
     {
-        std::ofstream ofd{ filepath, std::ios::app | std::ios::binary };
+        std::ofstream ofd{ filepath, std::ios::binary };
         if (!ofd.good())
             return false;
 

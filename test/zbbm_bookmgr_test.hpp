@@ -4,14 +4,8 @@
 #include <filesystem>
 #include <book_manager.h>
 
-static void print_books(const zbbm::book_manager& bm)
-{
-    for (const auto& book : bm.books())
-    {
-        std::cout << book.name << '\n';
-    }
-    std::cout.put('\n');
-}
+static void print_books(const zbbm::book_manager& bm);
+static void bookmgr_add_test(const zbbm::fs::path& filepath, const zbbm::book& book);
 
 static void zbbm_bm_test()
 {
@@ -27,26 +21,33 @@ static void zbbm_bm_test()
     book.name = "C++ Prime";
 
     zbbm::book book2 = book;
-    book2.isbn = "4673122";
-    book2.name = "C++ With Gems";
+    book2.isbn = "4673127";
+    book2.name = "Large-Scale C++";
 
     zbbm::book_manager bm{ "BookDatabase.zbbm" };
+    bm.clear();
+    bm.save();
+
+    bookmgr_add_test("BookDatabase.zbbm", book);
+    bookmgr_add_test("BookDatabase.zbbm", book2);
+
+    bm.update();
+    print_books(bm);
+}
+
+static void print_books(const zbbm::book_manager& bm)
+{
+    for (const auto& book : bm.books())
+    {
+        std::cout << book.name << '\n';
+    }
+}
+
+static void bookmgr_add_test(const zbbm::fs::path& filepath, const zbbm::book& book)
+{
+    zbbm::book_manager bm{ filepath };
     bm.add(book);
-    bm.add(book2);
     
     if (!bm.save())
         std::cerr << "Failed to save database" << '\n';
-
-    print_books(bm);
-    bm.remove(book2.isbn);
-
-    print_books(bm);
-    bm.remove(book.isbn);
-
-    zbbm::book book3 = book2;
-    bm.add(book3);
-
-    auto book_opt = bm.find("4673122");
-    if (book_opt.has_value())
-        std::cout << book_opt.value().name << '\n';
 }

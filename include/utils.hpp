@@ -1,73 +1,95 @@
 #pragma once 
 
+#include <book.hpp>
+
 #include <iostream>
 #include <fstream>
 #include <optional>
-#include <book.hpp>
 
-#define HANDLE_EXPR_LENGHT(var, attr, handle_file)\
-        var = target_book.attr.size();\
-        handle_file.write(reinterpret_cast<char *>(&var), sizeof(var));\
-        handle_file.write(target_book.attr.c_str(), target_book.attr.size());
+#define TRY_READ_VALUE(stream, field_name)     \
+    if (!read_value(stream, field_name))       \
+        return std::nullopt
 
 namespace zbbm::detail
 {
-    static inline void write(std::ostream& handle, const book& target_book)
+    template <typename T>
+    static inline void write_value(std::ostream& fd, const T& value)
     {
-        size_t lenght_str {0u};
+        fd.write(reinterpret_cast<const char *>(&value), sizeof(value));
+    }
 
-        HANDLE_EXPR_LENGHT(lenght_str, isbn, handle)
-        HANDLE_EXPR_LENGHT(lenght_str, name, handle)
-        HANDLE_EXPR_LENGHT(lenght_str, author, handle)
-        
-        auto n_authors{ target_book.co_authors.size() };
-        handle.write(reinterpret_cast<char *>(&n_authors), sizeof(n_authors));
+    static inline void write_value(std::ostream& fd, const std::string& value)
+    {
+        write_value(fd, value.size());
+        fd.write(value.data(), value.size());
+    }
+
+    static void write(std::ostream& fd, const book& target_book)
+    {
+        write_value(fd, target_book.isbn);
+        write_value(fd, target_book.name);
+        write_value(fd, target_book.author);
+        write_value(fd, target_book.co_authors.size());
 
         for (const auto& coauthor : target_book.co_authors)
         {
-            lenght_str = coauthor.size();
-            handle.write(reinterpret_cast<char *>(&lenght_str), sizeof(lenght_str));
-            handle.write(coauthor.c_str(), coauthor.size());
+            write_value(fd, coauthor.size());
+            write_value(fd, coauthor);
         }
         
-        HANDLE_EXPR_LENGHT(lenght_str, publisher, handle)
-        HANDLE_EXPR_LENGHT(lenght_str, launch_date, handle)
-        HANDLE_EXPR_LENGHT(lenght_str, language, handle)
+        write_value(fd, target_book.publisher);
+        write_value(fd, target_book.launch_date);
+        write_value(fd, target_book.language);
 
-        handle.flush();
+        fd.flush();
     }
 
-    static inline void read_str(std::istream& file_stream, std::string& str)
+    template <typename T>
+    static inline bool read_value(std::istream& fd, T& value)
     {
-        size_t len_str {0U};
-        
-        file_stream.read(reinterpret_cast<char *>(&len_str), sizeof(len_str));
-        str.resize(len_str + 1);
-        file_stream.read(str.data(), len_str);
+        if (fd.read(reinterpret_cast<char *>(&value), sizeof(T)))
+            return true;
+        else
+            return false;
     }
 
-    static inline std::optional<book> read(std::istream& file_stream)
+    static inline bool read_value(std::istream& fd, std::string& value)
     {
-        book obook {};
+        size_t lenght = {};
+
+        if (!fd.read(reinterpret_cast<char *>(&lenght), sizeof(lenght)))
+            return false;
+
+        value.resize(lenght);
+
+        if (!fd.read(value.data(), value.size()))
+            return false;
+
+        return true;
+    }
+
+    static std::optional<book> read(std::istream& file_stream)
+    {
+        if (!file_stream)
+            return std::nullopt;
         
-        read_str(file_stream , obook.isbn);
-        read_str(file_stream , obook.name);
-        read_str(file_stream , obook.author);
+        book target_book{};
 
-        size_t n_authors {0};
-        file_stream.read(reinterpret_cast<char *>(&n_authors), sizeof(n_authors));
-        
-        obook.co_authors.resize(n_authors);
+        TRY_READ_VALUE(file_stream, target_book.isbn);
+        TRY_READ_VALUE(file_stream, target_book.name);
+        TRY_READ_VALUE(file_stream, target_book.author);
 
-        for(size_t idx {}; idx < n_authors; ++idx)
-        {
-            read_str(file_stream , obook.co_authors[idx]);
-        }
+        size_t coauthors_size = {};
+        TRY_READ_VALUE(file_stream, coauthors_size);
 
-        read_str(file_stream , obook.publisher);
-        read_str(file_stream , obook.launch_date);
-        read_str(file_stream , obook.language);
+        target_book.co_authors.resize(coauthors_size);
+        for (auto& coauthor : target_book.co_authors)
+            TRY_READ_VALUE(file_stream, coauthor);
 
-        return obook;
+        TRY_READ_VALUE(file_stream, target_book.publisher);
+        TRY_READ_VALUE(file_stream, target_book.launch_date);
+        TRY_READ_VALUE(file_stream, target_book.language);
+
+        return target_book;
     } 
 }
