@@ -3,7 +3,6 @@ file(GLOB_RECURSE ZBBM_TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.cpp")
 
 set(ZBBM_LIBS 
 	${ZBBM_BASE_DIR}/src/book_manager.cpp
-	${ZBBM_BASE_DIR}/src/utils.cpp
 )
 
 add_executable(zbbm_test ${ZBBM_LIBS} ${ZBBM_TEST_SRCS})

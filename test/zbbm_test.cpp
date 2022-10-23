@@ -1,9 +1,8 @@
 #include <iostream>
-#include <book_manager.h>
+#include "zbbm_utils_test.hpp"
 
 int main(int argc, char** argv)
 {
-    // chamar suas funcoes de test AQ
-    std::cout << "ZBBM Test Init" << '\n';
+    zbb_utils_test();
     return {};
 }

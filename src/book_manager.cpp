@@ -1,4 +1,5 @@
 #include <book_manager.h>
+#include <utils.hpp>
 
 #include <algorithm>
 #include <exception>
@@ -31,7 +32,14 @@ namespace zbbm
 
     bool book_manager::save(const fs::path& filepath)
     {
-        return false;
+        std::ofstream ofd{ filepath, std::ios::app | std::ios::binary };
+        if (!ofd.good())
+            return false;
+
+        for (const auto& book : m_books)
+            zbbm::detail::write(ofd, book);
+
+        return true;
     }
 
     bool book_manager::save()
