@@ -131,19 +131,47 @@ namespace zbbm::interface
             std::cout << "\n[WARNING]: Book not found !" << "\n\n";
     }
 
+    void edit_book(zbbm::book_manager& book_manager)
+    {
+
+    }
+
+    void clear_book_register(zbbm::book_manager& book_manager)
+    {
+        std::cout << "\n---------- Clear Book Register ----------" << "\n";
+
+        if(book_manager.books().size() > 0)
+        {
+            book_manager.clear();
+            std::cout << "\n[INFO]: The book register has been clear !" << "\n\n";
+        }
+        else
+        {
+            std::cout << "\n[WARNING]: There're not books in register, nothing will be shown" << "\n\n";
+        }
+    }
+
+    void save_book_register(zbbm::book_manager& book_manager)
+    {
+        std::cout << "\n---------- Save books register ----------" << "\n";
+        
+        book_manager.save();
+        std::cout << "\n[INFO]: The book register has been saved !" << "\n\n";
+    }
+
     void list_book_register(zbbm::book_manager& book_manager)
     {
         if(!book_manager.books().empty())
         {
-            std::cout << "\n---------- Books on Register ----------" << "\n";
+            std::cout << "\n---------- Books register start ----------" << "\n";
 
             for (const auto& book : book_manager.books())
                 show_book(book);
 
-            std::cout << "---------- Books on Register ----------" << "\n\n";
+            std::cout << "---------- Books register end ----------" << "\n\n";
         }
         else    
-            std::cout << "\n[WARNING]: There're not books in register, nothing will be shown" << "\n";
+            std::cout << "\n[WARNING]: There're not books in register, nothing will be shown" << "\n\n";
     }
 
     void option_handler(zbbm::book_manager& book_manager, bool *running)
@@ -167,13 +195,16 @@ namespace zbbm::interface
                 find_book(book_manager);
                 break;
             case EDIT:
+                edit_book(book_manager);
                 break;
             case LIST:
                 list_book_register(book_manager);
                 break;
             case CLEAR:
+                clear_book_register(book_manager);
                 break;
             case SAVE:
+                save_book_register(book_manager);
                 break;
         
             default:
