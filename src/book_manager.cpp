@@ -1,4 +1,5 @@
 #include <book_manager.h>
+#include <book.hpp>
 #include <utils.hpp>
 
 #include <algorithm>
@@ -10,16 +11,14 @@ namespace zbbm
     {
         if (fs::exists(m_filepath) && fs::is_regular_file(m_filepath))
         {
-            // clear all books
             clear();
-            
             std::ifstream input{ m_filepath, std::ios::binary };
 
             while (input)
             {
                 auto book = zbbm::detail::read(input);
                 if (book.has_value())
-                    m_books.push_back(book.value());
+                    m_books.insert(book.value());
             }
         }
     }
@@ -32,7 +31,7 @@ namespace zbbm
     
     void book_manager::add(const book& book)
     {
-        m_books.push_back(book);
+        m_books.insert(book);
     }
 
     void book_manager::remove(std::string_view isbn)
@@ -66,14 +65,33 @@ namespace zbbm
         return save(m_filepath);
     }
 
-    std::optional<book> book_manager::find(std::string_view isbn) const noexcept
+    auto book_manager::find_iter(std::string_view isbn) 
+        -> std::set<book, std::less<>>::iterator
     {
-        for (const auto& book : m_books)
-            if (book.isbn == isbn)
-                return book;
+        book_light target_book{};
+        target_book.isbn = isbn;
+        return m_books.find(target_book);
+    }
+
+    std::optional<book> book_manager::find(std::string_view isbn) noexcept
+    {
+        auto iter = find_iter(isbn);
+        if (iter != m_books.end())
+            return *iter;
 
         return std::nullopt;
     }
 
+    void book_manager::edit(std::string_view isbn, 
+                            const std::function<void(book&)>& action)
+    {
+        auto iter = find_iter(isbn);
+        if (iter == m_books.end())
+            return;
+
+        auto node = m_books.extract(iter);
+        action(node.value());
+        m_books.insert(std::move(node));
+    }
 } // namespace zbbm
 

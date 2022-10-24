@@ -7,13 +7,18 @@
 #include <string>
 #include <string_view>
 #include <optional>
-
+#include <set>
+#include <functional>
 #include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace zbbm
 {
-    namespace fs = std::filesystem;
-
+    /**
+     * @brief Classe responsável por gerenciar os livros
+     * 
+     */
     class book_manager
     {
     public:
@@ -79,26 +84,33 @@ namespace zbbm
         }
 
         /**
+         * @brief Busca um deteminado livro e retorna seu iterator
+         * 
+         * @param isbn isbn do livro a ser buscado
+         * @return iterator do livro caso esteja no book_manager
+         */
+        [[nodiscard]]
+        auto find_iter(std::string_view isbn) -> std::set<book, std::less<>>::iterator;
+
+        /**
          * @brief Busca um livro apartir do seu ISBN
          * 
          * @param isbn o isbn do livro
          * @return std::optional<book> 
          */
         [[nodiscard]]
-        std::optional<book> find(std::string_view isbn) const noexcept;
+        std::optional<book> find(std::string_view isbn) noexcept;
 
-        book& operator[](size_t index)
-        {
-            return m_books[index];
-        }
-
-        const book& operator[](size_t index) const
-        {
-            return m_books[index];
-        }
+        /**
+         * @brief Edita um determinado livro no qual o isbn referencia 
+         * 
+         * @param isbn o isbn do livro
+         * @param action callback aplicado ao livro procurado
+         */
+        void edit(std::string_view isbn, const std::function<void(book&)>& action);
 
     private:
-        std::vector<book> m_books;
+        std::set<book, std::less<>> m_books;
         fs::path m_filepath;
     };
 } // namespace zbbm

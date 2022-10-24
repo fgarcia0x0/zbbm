@@ -5,7 +5,7 @@
 #include <book_manager.h>
 
 static void print_books(const zbbm::book_manager& bm);
-static void bookmgr_add_test(const zbbm::fs::path& filepath, const zbbm::book& book);
+static void bookmgr_add_test(const fs::path& filepath, const zbbm::book& book);
 
 static void zbbm_bm_test()
 {
@@ -43,7 +43,7 @@ static void print_books(const zbbm::book_manager& bm)
     }
 }
 
-static void bookmgr_add_test(const zbbm::fs::path& filepath, const zbbm::book& book)
+static void bookmgr_add_test(const fs::path& filepath, const zbbm::book& book)
 {
     zbbm::book_manager bm{ filepath };
     bm.add(book);

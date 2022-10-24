@@ -15,4 +15,25 @@ namespace zbbm
         std::string launch_date;
         std::string language;
     };
+
+    struct book_light
+    {
+        std::string isbn;
+    };
+
+    constexpr inline bool operator<(const book& book, const book_light& book_light)
+    {
+        return book.isbn < book_light.isbn;
+    }
+
+    constexpr inline bool operator<(const book_light& book_light, const book& book)
+    {
+        return book_light.isbn < book.isbn;
+    }
+
+    constexpr inline bool operator<(const book& book1, const book& book2)
+    {
+        return book1.isbn < book2.isbn;
+    }
+
 } // namespace zbbm
