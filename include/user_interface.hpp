@@ -17,18 +17,92 @@ namespace zbbm::interface
         SAVE
     };
 
+    void add_book(zbbm::book_manager& book_manager)
+    {
+        zbbm::book new_book;
+
+        std::cout << "\n---------- Add Book ----------" << "\n";
+
+        // TODO Make a book info validator
+        std::cout << "Title: ";
+        std::cin >> new_book.name;
+
+        std::cout << "ISBN: ";
+        std::cin >> new_book.isbn;
+
+        std::cout << "Publisher: ";
+        std::cin >> new_book.publisher;
+
+        std::cout << "Language: ";
+        std::cin >> new_book.language;
+
+        std::cout << "Launch Date: ";
+        std::cin >> new_book.launch_date;
+
+        std::cout << "Author: ";
+        std::cin >> new_book.author;
+
+        int32_t has_co_authors;
+        std::cout << "\nBook have co-authors ?" << "\n"
+                  << "Ansewer (Yes = 1, No = 0): ";
+        std::cin >> has_co_authors;
+
+        if(has_co_authors == 1)
+        {
+            std::string new_co_author;
+            for(bool co_authors = true; co_authors;)
+            {
+                std::cout << "\nCo-Author: ";
+                std::cin >> new_co_author;
+                new_book.co_authors.push_back(new_co_author);
+
+                std::cout << "\nBook have another co-author ?" << "\n"
+                          << "Ansewer (Yes = 1, No = 0): ";
+                std::cin >> has_co_authors;
+
+                if(has_co_authors != 1)
+                    co_authors = false;
+            }
+        }
+        else
+        {
+            new_book.co_authors.push_back("N/A");
+        }
+
+        book_manager.add(new_book);
+        std::cout << "\n[INFO]: Book successfully added !" << "\n\n";
+    }
+
+    void show_book(zbbm::book book, bool detailed = false)
+    {
+        std::cout << "ISBN: " << book.isbn << " - " << book.name << '\n';
+
+        if(detailed)
+        {
+            std::cout << "Book Details:"                          << "\n";
+            std::cout << "\t- Language: "     << book.language    << "\n"
+                      << "\t- Publisher: "    << book.publisher   << "\n"
+                      << "\t- Launch Date: "  << book.launch_date << "\n"
+                      << "\t- Author: "       << book.author      << "\n";
+            
+            std::string co_authors = {};
+            for(std::string co_author : book.co_authors)
+                co_authors.append(co_author + " ");
+
+            std::cout << "\t- Co-Authors: " << co_authors << "\n";
+        }
+    }
+
     void list_book_register(zbbm::book_manager& book_manager)
     {
         if(!book_manager.books().empty())
         {
-            std::cout << "\n---------- Book Register ----------" << "\n";
+            std::cout << "\n---------- Books on Register ----------" << "\n";
 
             for (const auto& book : book_manager.books())
-            {
-                std::cout << "ISBN: " << book.isbn << " - " << book.name << '\n';
-            }
+                show_book(book);
 
-            std::cout << "---------- Book Register ----------" << "\n\n";
+            std::cout << "---------- Books on Register ----------" << "\n\n";
         }
         else    
             std::cout << "\n[WARNING]: There're not books in register, nothing will be shown" << "\n";
@@ -46,6 +120,7 @@ namespace zbbm::interface
                 std::cout << "\n[INFO]: You exited the system, come back soon !" << "\n";
                 break;
             case ADD:
+                add_book(book_manager);
                 break;
             case REMOVE:
                 break;
