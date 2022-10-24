@@ -3,8 +3,10 @@
 #include <vector>
 #include <string>
 
+#include <user_interface.hpp>
+
 int main(int argc, char** argv)
 {
-    std::cout << "zbbm init" << '\n';
+    zbbm::interface::display_user_interface();
     return {};
 }
