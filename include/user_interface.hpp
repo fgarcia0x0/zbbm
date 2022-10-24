@@ -93,6 +93,44 @@ namespace zbbm::interface
         }
     }
 
+    void find_book(zbbm::book_manager& book_manager)
+    {
+        std::cout << "\n---------- Find Book ----------" << "\n";
+
+        std::string find_isbn;
+        std::cout << "Enter the book ISBN: ";
+        std::cin >> find_isbn;
+
+        std::optional<book> book = book_manager.find(find_isbn);
+
+        if(book != std::nullopt)
+        {
+            show_book(book.value(), true);
+            std::cout << "\n[INFO]: Book found !" << "\n\n";
+        }
+        else
+            std::cout << "\n[WARNING]: Book not found !" << "\n\n";
+    }
+
+    void remove_book(zbbm::book_manager& book_manager)
+    {
+        std::cout << "\n---------- Remove Book ----------" << "\n";
+
+        std::string find_isbn;
+        std::cout << "Enter the book ISBN: ";
+        std::cin >> find_isbn;
+
+        std::optional<book> book = book_manager.find(find_isbn);
+
+        if(book != std::nullopt)
+        {
+            book_manager.remove(find_isbn);
+            std::cout << "\n[INFO]: " << book.value().name << " book has been removed !" << "\n\n";
+        }
+        else
+            std::cout << "\n[WARNING]: Book not found !" << "\n\n";
+    }
+
     void list_book_register(zbbm::book_manager& book_manager)
     {
         if(!book_manager.books().empty())
@@ -123,8 +161,10 @@ namespace zbbm::interface
                 add_book(book_manager);
                 break;
             case REMOVE:
+                remove_book(book_manager);
                 break;
             case FIND:
+                find_book(book_manager);
                 break;
             case EDIT:
                 break;
