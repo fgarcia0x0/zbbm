@@ -17,7 +17,24 @@ namespace zbbm::interface
         SAVE
     };
 
-    void option_handler(bool *running)
+    void list_book_register(zbbm::book_manager& book_manager)
+    {
+        if(!book_manager.books().empty())
+        {
+            std::cout << "\n---------- Book Register ----------" << "\n";
+
+            for (const auto& book : book_manager.books())
+            {
+                std::cout << "ISBN: " << book.isbn << " - " << book.name << '\n';
+            }
+
+            std::cout << "---------- Book Register ----------" << "\n\n";
+        }
+        else    
+            std::cout << "\n[WARNING]: There're not books in register, nothing will be shown" << "\n";
+    }
+
+    void option_handler(zbbm::book_manager& book_manager, bool *running)
     {
         int32_t choice;
         std::cin >> choice;
@@ -37,6 +54,7 @@ namespace zbbm::interface
             case EDIT:
                 break;
             case LIST:
+                list_book_register(book_manager);
                 break;
             case CLEAR:
                 break;
@@ -58,7 +76,7 @@ namespace zbbm::interface
                   << "2 - Remove Book from Book Register"         << "\n"
                   << "3 - Find Book on Book Register"             << "\n"
                   << "4 - Edit Book from Book Register"           << "\n"
-                  << "5 - List All Book's on Book Register"       << "\n"
+                  << "5 - List All Books on Book Register"       << "\n"
                   << "6 - Clear Book Register"                    << "\n"
                   << "7 - Save Book Register"                     << "\n"
                   << "0 - Exit Ze Bigodes Book Manager"           << "\n"
@@ -67,12 +85,12 @@ namespace zbbm::interface
         std::cout << "\nEnter your choice: ";
     }
 
-    static void display_user_interface()
+    static void display_user_interface(zbbm::book_manager& book_manager)
     {
         for( bool running = true; running; )
         {
             zbbm::interface::show_menu_interface();
-            zbbm::interface::option_handler(&running);
+            zbbm::interface::option_handler(book_manager, &running);
         }
     }
 }
