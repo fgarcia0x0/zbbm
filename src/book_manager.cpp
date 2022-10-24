@@ -18,7 +18,7 @@ namespace zbbm
             {
                 auto book = zbbm::detail::read(input);
                 if (book.has_value())
-                    m_books.insert(book.value());
+                    m_books.insert(std::move(book.value()));
             }
         }
     }
