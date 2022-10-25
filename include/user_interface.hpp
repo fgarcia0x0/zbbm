@@ -14,7 +14,20 @@ namespace zbbm::interface
         EDIT,
         LIST,
         CLEAR,
-        SAVE
+        SAVE,
+        UPDATE
+    };
+
+    enum BookComponents 
+    {
+        CANCEL,
+        TITLE,
+        ISBN,
+        PUBLISHER,
+        LANGUAGE,
+        LAUNCH_DATE,
+        AUTHOR,
+        CO_AUTHORS
     };
 
     void add_book(zbbm::book_manager& book_manager)
@@ -93,6 +106,104 @@ namespace zbbm::interface
         }
     }
 
+    void show_edit_menu(zbbm::book& book)
+    {
+        show_book(book, true);
+
+        std::cout << "\n---------- Edit Options ----------" << "\n"
+                  << "1 - Edit Book Title"                  << "\n" 
+                  << "2 - Edit Book ISBN"                   << "\n" 
+                  << "3 - Edit Book Publisher"              << "\n" 
+                  << "4 - Edit Book Language"               << "\n" 
+                  << "5 - Edit Book Launch Date"            << "\n" 
+                  << "6 - Edit Book Author"                 << "\n" 
+                  << "7 - Edit Book Co-Authors"             << "\n"
+                  << "0 - Cancel Book Editing"              << "\n";
+        
+        std::cout << "\nEnter your choice: ";
+
+        int32_t choice;
+        std::cin >> choice;
+
+        bool edited = true;
+
+        // TODO Book Component Validator
+        switch (choice)
+        {
+        case CANCEL:
+            std::cout << "\n[INFO]: You exited the editing menu, nothing has been changed !"
+                      << "\n";
+            edited = false;
+            break;
+        case TITLE:
+            std::cout << "New title: ";
+            std::cin >> book.name;
+            break;
+        case ISBN:
+            std::cout << "New ISBN: ";
+            std::cin >> book.isbn;
+            break;
+        case PUBLISHER:
+            std::cout << "New publisher: ";
+            std::cin >> book.publisher;
+            break;
+        case LANGUAGE:
+            std::cout << "New language: ";
+            std::cin >> book.language;
+            break;
+        case LAUNCH_DATE:
+            std::cout << "New launch date: ";
+            std::cin >> book.launch_date;
+            break;
+        case AUTHOR:
+            std::cout << "New author: ";
+            std::cin >> book.author;
+            break;
+        case CO_AUTHORS:
+            int32_t has_co_authors;
+            std::cout << "\nBook have co-authors ?"
+                      << "\n"
+                      << "Ansewer (Yes = 1, No = 0): ";
+            std::cin >> has_co_authors;
+
+            if (has_co_authors == 1)
+            {
+                std::string new_co_author;
+                for (bool co_authors = true; co_authors;)
+                {
+                    std::cout << "\nCo-Author: ";
+                    std::cin >> new_co_author;
+                    book.co_authors.push_back(new_co_author);
+
+                    std::cout << "\nBook have another co-author ?"
+                              << "\n"
+                              << "Ansewer (Yes = 1, No = 0): ";
+                    std::cin >> has_co_authors;
+
+                    if (has_co_authors != 1)
+                        co_authors = false;
+                }
+            }
+            else
+            {
+                book.co_authors.push_back("N/A");
+            }
+            break;
+        default:
+            std::cout << "\n[ERRO]: Invalid option !"
+                      << "\n\n";
+            edited = false;
+            break;
+        }
+
+        if (edited)
+            std::cout << "\n[INFO]: The book has been edited !"
+                      << "\n\n";
+        else
+            std::cout << "\n[WARNING]: The book has not been changed !"
+                      << "\n\n";
+    };
+
     void find_book(zbbm::book_manager& book_manager)
     {
         std::cout << "\n---------- Find Book ----------" << "\n";
@@ -133,7 +244,36 @@ namespace zbbm::interface
 
     void edit_book(zbbm::book_manager& book_manager)
     {
+        std::cout << "\n---------- Edit Book ----------" << "\n";
 
+        std::string find_isbn;
+        std::cout << "Enter the book ISBN: ";
+        std::cin >> find_isbn;
+
+        std::optional<book> book = book_manager.find(find_isbn);
+
+        if(book != std::nullopt)
+        {
+            std::function<void (zbbm::book&)> edit_menu = show_edit_menu;
+            book_manager.edit(find_isbn, edit_menu);
+        }
+        else
+            std::cout << "\n[WARNING]: Book not found !" << "\n\n";
+    }
+
+    void list_book_register(zbbm::book_manager& book_manager)
+    {
+        if(!book_manager.books().empty())
+        {
+            std::cout << "\n---------- Books register start ----------" << "\n";
+
+            for (const auto& book : book_manager.books())
+                show_book(book);
+
+            std::cout << "---------- Books register end ----------" << "\n\n";
+        }
+        else    
+            std::cout << "\n[WARNING]: There're not books in register, nothing will be shown" << "\n\n";
     }
 
     void clear_book_register(zbbm::book_manager& book_manager)
@@ -159,19 +299,12 @@ namespace zbbm::interface
         std::cout << "\n[INFO]: The book register has been saved !" << "\n\n";
     }
 
-    void list_book_register(zbbm::book_manager& book_manager)
+    void update_book_register(zbbm::book_manager& book_manager)
     {
-        if(!book_manager.books().empty())
-        {
-            std::cout << "\n---------- Books register start ----------" << "\n";
-
-            for (const auto& book : book_manager.books())
-                show_book(book);
-
-            std::cout << "---------- Books register end ----------" << "\n\n";
-        }
-        else    
-            std::cout << "\n[WARNING]: There're not books in register, nothing will be shown" << "\n\n";
+        std::cout << "\n---------- Update books register ----------" << "\n";
+        
+        book_manager.update();
+        std::cout << "\n[INFO]: The book register has been updated !" << "\n\n";
     }
 
     void option_handler(zbbm::book_manager& book_manager, bool *running)
@@ -206,6 +339,9 @@ namespace zbbm::interface
             case SAVE:
                 save_book_register(book_manager);
                 break;
+            case UPDATE:
+                update_book_register(book_manager);
+                break;
         
             default:
                 std::cout << "\n[ERRO]: Invalid option, try again !" << "\n\n";
@@ -222,9 +358,10 @@ namespace zbbm::interface
                   << "2 - Remove Book from Book Register"         << "\n"
                   << "3 - Find Book on Book Register"             << "\n"
                   << "4 - Edit Book from Book Register"           << "\n"
-                  << "5 - List All Books on Book Register"       << "\n"
+                  << "5 - List All Books on Book Register"        << "\n"
                   << "6 - Clear Book Register"                    << "\n"
                   << "7 - Save Book Register"                     << "\n"
+                  << "8 - Update Book Register"                   << "\n"
                   << "0 - Exit Ze Bigodes Book Manager"           << "\n"
                   << "---------- Management Options ----------"   << "\n";
 
