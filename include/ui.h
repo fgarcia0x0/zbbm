@@ -1,6 +1,7 @@
 #pragma once
 
 #include <book_manager.h>
+#include <banner.hpp>
 
 #include <iostream>
 #include <string_view>
@@ -52,12 +53,15 @@ namespace zbbm
 
     void ui_handle_exit(book_manager& manager);
 
+    static void show_banner()
+    {
+        std::cout << banner::banner_options[1];
+        std::cout << "\t\t\tZe Bigode's Book Manager" << "\n\n";
+    }
+
     static inline user_option show_options()
     {
-        std::cout << "==================== Ze Bigode's Book Manager ====================" << "\n";
-
-        std::cout << "\n---------- Management Options ----------" << "\n"
-                  << "1 - Add Book on Book Register"              << "\n" 
+        std::cout << "1 - Add Book on Book Register"              << "\n" 
                   << "2 - Remove Book from Book Register"         << "\n"
                   << "3 - Find Book on Book Register"             << "\n"
                   << "4 - Edit Book from Book Register"           << "\n"
@@ -65,10 +69,9 @@ namespace zbbm
                   << "6 - Clear Book Register"                    << "\n"
                   << "7 - Save Book Register"                     << "\n"
                   << "8 - Update Book Register"                   << "\n"
-                  << "0 - Exit Ze Bigodes Book Manager"           << "\n"
-                  << "---------- Management Options ----------"   << "\n";
+                  << "0 - Exit Ze Bigodes Book Manager"           << "\n";
 
-        std::cout << "\nEnter your choice: ";
+        std::cout << "\n[+] Enter your choice: ";
 
         std::uint32_t opt{};
         if (!(std::cin >> opt) || opt > 8u)

@@ -3,11 +3,11 @@
 #include <string>
 
 #include <ui.h>
-#include <user_interface.hpp>
 
 int main(int argc, char** argv)
 {
     zbbm::book_manager book_manager{ "BookDatabase.zbbm" };
+    zbbm::show_banner();
 
     for (;;)
     {
