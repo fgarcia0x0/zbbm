@@ -2,41 +2,42 @@
 
 namespace zbbm
 {
-    static void ui_show_book(zbbm::book book, bool detailed = false)
+    static void ui_show_book(const zbbm::book& book, size_t book_index = SIZE_MAX)
     {   
-        std::cout << "ISBN: " << book.isbn << " - " << book.name << '\n';
+        if (book_index != SIZE_MAX)
+            std::cout << "[Book #" << std::to_string(book_index) << "]:" << std::endl;
+        else
+            std::cout << "[Book Details]" << '\n';
 
-        if (detailed)
-        {
-            std::cout << "Book Details:"                          << "\n";
-            std::cout << "\t- Language: "     << book.language    << "\n"
-                      << "\t- Publisher: "    << book.publisher   << "\n"
-                      << "\t- Launch Date: "  << book.launch_date << "\n"
-                      << "\t- Author: "       << book.author      << "\n";
-            
-            std::string co_authors = {};
-            for(std::string co_author : book.co_authors)
-                co_authors.append(co_author + " ");
+        std::cout << "\t- Name: "           << book.name             << '\n'
+                  << "\t- ISBN: "           << book.isbn             << '\n'
+                  << "\t- Language: "       << book.language         << '\n'
+                  << "\t- Publisher: "      << book.publisher        << '\n'
+                  << "\t- Launch Date: "    << book.launch_date      << '\n'
+                  << "\t- Author: "         << book.author           << std::endl;
 
-            std::cout << "\t- Co-Authors: " << co_authors << "\n";
-        }
+        std::cout << "\t- CoAuthors: " << ((book.co_authors.empty()) ? "N/A\n" : "\n");
+        for (const auto& coauthor : book.co_authors)
+            std::cout << "\t   - " << coauthor << '\n';
+
+        std::cout.put('\n');
     }
 
-    static void ui_show_edit_menu(zbbm::book book)
+    static void ui_show_edit_menu(zbbm::book& book)
     {
-        ui_show_book(book, true);
+        ui_show_book(book);
 
-        std::cout << "\n---------- Edit Options ----------" << "\n"
-                  << "1 - Edit Book Title"                  << "\n" 
-                  << "2 - Edit Book ISBN"                   << "\n" 
-                  << "3 - Edit Book Publisher"              << "\n" 
-                  << "4 - Edit Book Language"               << "\n" 
-                  << "5 - Edit Book Launch Date"            << "\n" 
-                  << "6 - Edit Book Author"                 << "\n" 
-                  << "7 - Edit Book Co-Authors"             << "\n"
-                  << "0 - Cancel Book Editing"              << "\n";
+        std::cout << "\n---------- [Edit Options] ----------" << "\n"
+                  << "[1] - Edit Book Title"                  << "\n" 
+                  << "[2] - Edit Book ISBN"                   << "\n" 
+                  << "[3] - Edit Book Publisher"              << "\n" 
+                  << "[4] - Edit Book Language"               << "\n" 
+                  << "[5] - Edit Book Launch Date"            << "\n" 
+                  << "[6] - Edit Book Author"                 << "\n" 
+                  << "[7] - Edit Book Co-Authors"             << "\n"
+                  << "[0] - Cancel Book Editing"              << "\n";
         
-        std::cout << "\nEnter your choice: ";
+        std::cout << "\n[+] Enter your choice: ";
 
         uint32_t choice;
         std::cin >> choice;
@@ -122,11 +123,10 @@ namespace zbbm
 
     void ui_handle_add(book_manager& manager)
     {
-        zbbm::book new_book;
+        zbbm::book new_book{};
 
         std::cout << "\n---------- Add Book ----------" << "\n";
 
-        // TODO Make a book info validator
         std::cout << "Title: ";
         std::cin >> new_book.name;
 
@@ -147,13 +147,13 @@ namespace zbbm
 
         int32_t has_co_authors;
         std::cout << "\nBook have co-authors ?" << "\n"
-                  << "Ansewer (Yes = 1, No = 0): ";
+                  << "Answer (Yes = 1, No = 0): ";
         std::cin >> has_co_authors;
 
-        if(has_co_authors == 1)
+        if (has_co_authors == 1)
         {
             std::string new_co_author;
-            for(bool co_authors = true; co_authors;)
+            for (bool co_authors = true; co_authors;)
             {
                 std::cout << "\nCo-Author: ";
                 std::cin >> new_co_author;
@@ -177,12 +177,12 @@ namespace zbbm
         std::cout << "\n---------- Remove Book ----------" << "\n";
 
         std::string find_isbn;
-        std::cout << "Enter the book ISBN: ";
+        std::cout << "[+] Enter the book ISBN: ";
         std::cin >> find_isbn;
 
         std::optional<book> book = manager.find(find_isbn);
 
-        if(book != std::nullopt)
+        if (book.has_value())
         {
             manager.remove(find_isbn);
             std::cout << "\n[INFO]: " << book.value().name << " book has been removed !" << "\n\n";
@@ -201,11 +201,8 @@ namespace zbbm
 
         std::optional<book> book = manager.find(find_isbn);
 
-        if(book != std::nullopt)
-        {
-            std::function<void (zbbm::book&)> edit_menu = ui_show_edit_menu;
-            manager.edit(find_isbn, edit_menu);
-        }
+        if (book.has_value())
+            manager.edit(find_isbn, ui_show_edit_menu);
         else
             std::cout << "\n[WARNING]: Book not found !" << "\n\n";
     }
@@ -214,7 +211,7 @@ namespace zbbm
     {
         std::cout << "\n---------- Clear Book Register ----------" << "\n";
 
-        if(manager.books().size() > 0)
+        if (manager.books().size() > 0)
         {
             manager.clear();
             std::cout << "\n[INFO]: The book register has been clear !" << "\n\n";
@@ -230,18 +227,19 @@ namespace zbbm
         std::cout << "\n---------- Find Book ----------" << "\n";
 
         std::string find_isbn;
-        std::cout << "Enter the book ISBN: ";
+        std::cout << "[+] Enter the book ISBN: ";
         std::cin >> find_isbn;
 
         std::optional<book> book = manager.find(find_isbn);
 
-        if(book != std::nullopt)
+        if (book.has_value())
         {
-            ui_show_book(book.value(), true);
-            std::cout << "\n[INFO]: Book found !" << "\n\n";
+            std::cout.put('\n');
+            ui_show_book(book.value());
+            std::cout << "[INFO]: Book found !" << "\n\n";
         }
         else
-            std::cout << "\n[WARNING]: Book not found !" << "\n\n";
+            std::cout << "[WARNING]: Book not found !" << "\n\n";
         
     }
 
@@ -251,8 +249,9 @@ namespace zbbm
         {
             std::cout << "\n---------- Books register start ----------" << "\n";
 
+            size_t book_index {};
             for (const auto& book : manager.books())
-                ui_show_book(book);
+                ui_show_book(book, ++book_index);
 
             std::cout << "---------- Books register end ----------" << "\n\n";
         }
@@ -271,7 +270,6 @@ namespace zbbm
     void ui_handle_update(book_manager& manager)
     {
         std::cout << "\n---------- Update books register ----------" << "\n";
-        
         manager.update();
         std::cout << "\n[INFO]: The book register has been updated !" << "\n\n";
     }
