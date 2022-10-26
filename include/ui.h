@@ -29,7 +29,7 @@ namespace zbbm
         std::cout << message;
         std::string line;
 
-        if (!std::getline(input, line))
+        if (!std::getline(input, line) || line.empty())
             return std::nullopt;
 
         return line;
@@ -55,7 +55,7 @@ namespace zbbm
 
     static void show_banner()
     {
-        std::cout << banner::banner_options[1];
+        std::cout << banner::banner_options[1u];
         std::cout << "\t\t\t[Ze Bigode's Book Manager]" << "\n\n";
     }
 

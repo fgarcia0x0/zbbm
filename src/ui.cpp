@@ -2,6 +2,66 @@
 
 namespace zbbm
 {
+    static inline void exit_with_error(std::string_view message)
+    {
+        std::cerr << "[-] " << message << '\n';
+        std::exit(EXIT_FAILURE);
+    }
+
+    static inline std::string read_isbn(std::string_view message)
+    {
+        std::string target_isbn;
+        std::cout << message;
+
+        if (!(std::cin >> target_isbn))
+            exit_with_error("invalid input");
+
+        for (const char& ch : target_isbn)
+        {
+            if (!std::isdigit(uint8_t(ch)) && (ch != '-'))
+                exit_with_error("invalid isbn");
+        }
+
+        return target_isbn;
+    }
+
+    static inline void handle_coauthors(book& new_book)
+    {
+        std::optional<std::string> new_coauthor{};
+        uint32_t has_coauthor{};
+
+        std::cout << "\nBook have co-authors ?" << "\n"
+                  << "Answer (Yes = 1, No = 0): ";
+
+        if (!(std::cin >> has_coauthor) || has_coauthor > 1u)
+            exit_with_error("invalid input");
+
+        if (!has_coauthor)
+            return;
+
+        std::cin.ignore(sizeof(char));
+
+        for (;;)
+        {
+            new_coauthor = get_line("[+] Co-Author: ", std::cin);
+            if (!new_coauthor)
+                exit_with_error("invalid coauthor value");
+
+            new_book.co_authors.push_back(std::move(new_coauthor.value()));
+
+            std::cout << "\nBook have another co-author ?" << "\n"
+                      << "Ansewer (Yes = 1, No = 0): ";
+
+            if (!(std::cin >> has_coauthor) || has_coauthor > 1u)
+                exit_with_error("invalid input");
+
+            std::cin.ignore(sizeof(char));
+
+            if (!has_coauthor)
+                break;
+        }
+    }
+
     static void ui_show_book(const zbbm::book& book, size_t book_index = SIZE_MAX)
     {   
         if (book_index != SIZE_MAX)
@@ -23,6 +83,15 @@ namespace zbbm
         std::cout.put('\n');
     }
 
+    static inline void show_coauthors(const std::vector<std::string>& coauthors)
+    {
+        std::cout << "\t- CoAuthors: " << ((coauthors.empty()) ? "N/A\n" : "\n");
+        const auto size_co = coauthors.size();
+
+        for (size_t idx {}; idx < size_co; ++idx)
+            std::cout << "\t   [" << idx + 1 << "] - " << coauthors[idx] << '\n';
+    }
+    
     static void ui_show_edit_menu(zbbm::book& book)
     {
         ui_show_book(book);
@@ -38,73 +107,89 @@ namespace zbbm
                   << "[0] - Cancel Book Editing"              << "\n";
         
         std::cout << "\n[+] Enter your choice: ";
+        uint32_t choice = {0};
 
-        uint32_t choice;
-        std::cin >> choice;
+        if (!(std::cin >> choice))
+            exit_with_error("invalid input");
+
+        // ignorar '\n'
+        std::cin.ignore(sizeof(char));
 
         bool edited = true;
+        size_t coauthor_id {};
 
-        // TODO Book Component Validator
+        std::optional<std::string> result{};
+
         switch (choice)
         {
         case 0:
-            std::cout << "\n[INFO]: You exited the editing menu, nothing has been changed !"
-                      << "\n";
+            std::cout << "\n[INFO]: You exited the editing menu, nothing has been changed !" << "\n";
             edited = false;
             break;
         case 1:
-            std::cout << "New title: ";
-            std::cin >> book.name;
+            result = get_line("New title: ", std::cin);
+            if (!result)
+                exit_with_error("invalid title name");
+            book.name = result.value();
             break;
         case 2:
-            std::cout << "New ISBN: ";
-            std::cin >> book.isbn;
+            book.isbn = read_isbn("New ISBN: ");
             break;
         case 3:
-            std::cout << "New publisher: ";
-            std::cin >> book.publisher;
+            result = get_line("New publisher: ", std::cin);
+            if (!result)
+                exit_with_error("invalid publisher value");
+            book.publisher = result.value();
             break;
         case 4:
-            std::cout << "New language: ";
-            std::cin >> book.language;
+            result = get_line("New language: ", std::cin);
+            if (!result)
+                exit_with_error("invalid language value");
+                
+            book.language = result.value();
             break;
         case 5:
-            std::cout << "New launch date: ";
-            std::cin >> book.launch_date;
+            result = get_line("New launch date: ", std::cin);
+            if (!result)
+                exit_with_error("invalid launch date");
+                
+            book.launch_date = result.value();
             break;
         case 6:
-            std::cout << "New author: ";
-            std::cin >> book.author;
-            break;
+            result = get_line("New author: ", std::cin);
+            if (!result)
+                exit_with_error("invalid author");
+                
+            book.author = result.value();
+            break;       
         case 7:
-            int32_t has_co_authors;
-            std::cout << "\nBook have co-authors ?"
-                      << "\n"
-                      << "Ansewer (Yes = 1, No = 0): ";
-            std::cin >> has_co_authors;
-
-            if (has_co_authors == 1)
+            show_coauthors(book.co_authors);
+            
+            std::cout << "[+] Enter the number of the co-author you want to edit"
+                      << " (enter 0 to cancel): ";
+            
+            if (!(std::cin >> coauthor_id))
             {
-                std::string new_co_author;
-                for (bool co_authors = true; co_authors;)
-                {
-                    std::cout << "\nCo-Author: ";
-                    std::cin >> new_co_author;
-                    book.co_authors.push_back(new_co_author);
-
-                    std::cout << "\nBook have another co-author ?"
-                              << "\n"
-                              << "Ansewer (Yes = 1, No = 0): ";
-                    std::cin >> has_co_authors;
-
-                    if (has_co_authors != 1)
-                        co_authors = false;
-                }
+               exit_with_error("invalid input");
             }
-            else
+            else if((coauthor_id) == 0)
             {
-                book.co_authors.push_back("N/A");
+                edited = false;
+                break;
             }
+            else if(coauthor_id > book.co_authors.size())
+            {
+                exit_with_error("Invalid coauthor id!!!");
+            }
+
+            std::cin.ignore(sizeof(char));
+
+            result = get_line("[+] New coauthor: ", std::cin);
+            if (!result)
+                exit_with_error("invalid coauthor value");
+
+            book.co_authors[coauthor_id - 1] = result.value();
+
             break;
         default:
             std::cout << "\n[ERRO]: Invalid option !"
@@ -124,49 +209,32 @@ namespace zbbm
     void ui_handle_add(book_manager& manager)
     {
         zbbm::book new_book{};
+        std::cin.ignore(sizeof(char));
+
+
+        auto get_field = [](std::string_view message, 
+                            std::string_view error_message,
+                            std::string& field) 
+        {
+            auto result = get_line(message, std::cin);
+            if (!result)
+                exit_with_error(error_message);
+            field = result.value();
+        };
 
         std::cout << "\n---------- Add Book ----------" << "\n";
 
-        std::cout << "Title: ";
-        std::cin >> new_book.name;
+        get_field("Title: ", "invalid title name", new_book.name);
 
-        std::cout << "ISBN: ";
-        std::cin >> new_book.isbn;
+        new_book.isbn = read_isbn("ISBN: ");
+        std::cin.ignore(sizeof(char));
 
-        std::cout << "Publisher: ";
-        std::cin >> new_book.publisher;
+        get_field("Publisher: ", "invalid publisher name", new_book.publisher);
+        get_field("Language: ", "invalid language name", new_book.language);
+        get_field("Launch Date: ", "invalid launch date name", new_book.launch_date);
+        get_field("Author: ", "invalid author name", new_book.author);
 
-        std::cout << "Language: ";
-        std::cin >> new_book.language;
-
-        std::cout << "Launch Date: ";
-        std::cin >> new_book.launch_date;
-
-        std::cout << "Author: ";
-        std::cin >> new_book.author;
-
-        int32_t has_co_authors;
-        std::cout << "\nBook have co-authors ?" << "\n"
-                  << "Answer (Yes = 1, No = 0): ";
-        std::cin >> has_co_authors;
-
-        if (has_co_authors == 1)
-        {
-            std::string new_co_author;
-            for (bool co_authors = true; co_authors;)
-            {
-                std::cout << "\nCo-Author: ";
-                std::cin >> new_co_author;
-                new_book.co_authors.push_back(new_co_author);
-
-                std::cout << "\nBook have another co-author ?" << "\n"
-                          << "Ansewer (Yes = 1, No = 0): ";
-                std::cin >> has_co_authors;
-
-                if(has_co_authors != 1)
-                    co_authors = false;
-            }
-        }
+        handle_coauthors(new_book);
 
         manager.add(new_book);
         std::cout << "\n[INFO]: Book successfully added !" << "\n\n";
@@ -174,17 +242,14 @@ namespace zbbm
 
     void ui_handle_remove(book_manager& manager)
     {
-        std::cout << "\n---------- Remove Book ----------" << "\n";
+        std::cout << "\n---------- Remove Book ----------\n";
 
-        std::string find_isbn;
-        std::cout << "[+] Enter the book ISBN: ";
-        std::cin >> find_isbn;
-
-        std::optional<book> book = manager.find(find_isbn);
+        std::string target_isbn = read_isbn("[+] Enter the book ISBN: ");
+        std::optional<book> book = manager.find(target_isbn);
 
         if (book.has_value())
         {
-            manager.remove(find_isbn);
+            manager.remove(target_isbn);
             std::cout << "\n[INFO]: " << book.value().name << " book has been removed !" << "\n\n";
         }
         else
@@ -195,14 +260,11 @@ namespace zbbm
     {
         std::cout << "\n---------- Edit Book ----------" << "\n";
 
-        std::string find_isbn;
-        std::cout << "Enter the book ISBN: ";
-        std::cin >> find_isbn;
-
-        std::optional<book> book = manager.find(find_isbn);
+        std::string target_isbn = read_isbn("[+] Enter the book ISBN: ");
+        std::optional<book> book = manager.find(target_isbn);
 
         if (book.has_value())
-            manager.edit(find_isbn, ui_show_edit_menu);
+            manager.edit(target_isbn, ui_show_edit_menu);
         else
             std::cout << "\n[WARNING]: Book not found !" << "\n\n";
     }
@@ -226,11 +288,8 @@ namespace zbbm
     {
         std::cout << "\n---------- Find Book ----------" << "\n";
 
-        std::string find_isbn;
-        std::cout << "[+] Enter the book ISBN: ";
-        std::cin >> find_isbn;
-
-        std::optional<book> book = manager.find(find_isbn);
+        std::string target_isbn = read_isbn("[+] Enter the book ISBN: ");
+        std::optional<book> book = manager.find(target_isbn);
 
         if (book.has_value())
         {
@@ -245,7 +304,7 @@ namespace zbbm
 
     void ui_handle_list(book_manager& manager)
     {
-        if(!manager.books().empty())
+        if (!manager.books().empty())
         {
             std::cout << "\n---------- Books register start ----------" << "\n";
 
@@ -263,8 +322,11 @@ namespace zbbm
     {
         std::cout << "\n---------- Save books register ----------" << "\n";
         
-        manager.save();
-        std::cout << "\n[INFO]: The book register has been saved !" << "\n\n";
+        if (manager.save())
+            std::cout << "\n[INFO]: The book register has been saved !" << "\n\n";
+        else
+            std::cout << "\n[WARN]: Cannot save the book register!" << "\n\n";
+        
     }
 
     void ui_handle_update(book_manager& manager)
