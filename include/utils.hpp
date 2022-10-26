@@ -2,7 +2,6 @@
 
 #include <book.hpp>
 
-#include <iostream>
 #include <fstream>
 #include <optional>
 
@@ -29,14 +28,11 @@ namespace zbbm::detail
         write_value(fd, target_book.isbn);
         write_value(fd, target_book.name);
         write_value(fd, target_book.author);
-        write_value(fd, target_book.co_authors.size());
 
-        for (const auto& coauthor : target_book.co_authors)
-        {
-            write_value(fd, coauthor.size());
+        write_value(fd, target_book.co_authors.size());
+        for (const auto &coauthor : target_book.co_authors)
             write_value(fd, coauthor);
-        }
-        
+
         write_value(fd, target_book.publisher);
         write_value(fd, target_book.launch_date);
         write_value(fd, target_book.language);
@@ -47,7 +43,7 @@ namespace zbbm::detail
     template <typename T>
     static inline bool read_value(std::istream& fd, T& value)
     {
-        if (fd.read(reinterpret_cast<char *>(&value), sizeof(T)))
+        if (fd.read(reinterpret_cast<char *>(&value), sizeof(value)))
             return true;
         else
             return false;
@@ -59,7 +55,7 @@ namespace zbbm::detail
 
         if (!fd.read(reinterpret_cast<char *>(&lenght), sizeof(lenght)))
             return false;
-
+        
         value.resize(lenght);
 
         if (!fd.read(value.data(), value.size()))
@@ -84,7 +80,9 @@ namespace zbbm::detail
 
         target_book.co_authors.resize(coauthors_size);
         for (auto& coauthor : target_book.co_authors)
+        {
             TRY_READ_VALUE(file_stream, coauthor);
+        }
 
         TRY_READ_VALUE(file_stream, target_book.publisher);
         TRY_READ_VALUE(file_stream, target_book.launch_date);

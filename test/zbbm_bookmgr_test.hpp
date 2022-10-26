@@ -19,6 +19,7 @@ static void zbbm_bm_test()
     book.launch_date = {};
     book.publisher = {};
     book.name = "C++ Prime";
+    book.co_authors = { "Bryan", "Gerliandro" };
 
     zbbm::book book2 = book;
     book2.isbn = "4673127";
@@ -29,7 +30,7 @@ static void zbbm_bm_test()
     bm.save();
 
     bookmgr_add_test("BookDatabase.zbbm", book);
-    bookmgr_add_test("BookDatabase.zbbm", book2);
+    //bookmgr_add_test("BookDatabase.zbbm", book2);
 
     bm.update();
     print_books(bm);
