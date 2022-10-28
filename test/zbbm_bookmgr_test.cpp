@@ -79,7 +79,7 @@ TEST(BookManagerTest, RemoveTest)
 
 TEST(BookManagerTest, ListTest)
 {
-    
+    //EXPECT_EQ(1000, cubic(10));
 };
 
 TEST(BookManagerTest, FindTest)
@@ -89,7 +89,15 @@ TEST(BookManagerTest, FindTest)
 
 TEST(BookManagerTest, ClearTest)
 {
-    //EXPECT_EQ(1000, cubic(10));
+    zbbm::book_manager book_manager{ "BookDatabaseTest.zbbm" };
+    bool result = false;
+
+    book_manager.clear();
+
+    if(book_manager.books().empty())
+        result = true;
+
+    EXPECT_TRUE(result == true);
 };
 
 TEST(BookManagerTest, SaveTest)
