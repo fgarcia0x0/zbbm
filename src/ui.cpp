@@ -211,7 +211,6 @@ namespace zbbm
         zbbm::book new_book{};
         std::cin.ignore(sizeof(char));
 
-
         auto get_field = [](std::string_view message, 
                             std::string_view error_message,
                             std::string& field) 

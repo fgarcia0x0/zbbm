@@ -30,7 +30,7 @@ namespace zbbm::detail
         write_value(fd, target_book.author);
 
         write_value(fd, target_book.co_authors.size());
-        for (const auto &coauthor : target_book.co_authors)
+        for (const auto& coauthor : target_book.co_authors)
             write_value(fd, coauthor);
 
         write_value(fd, target_book.publisher);
