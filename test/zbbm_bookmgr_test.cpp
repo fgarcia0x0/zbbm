@@ -109,7 +109,33 @@ TEST(BookManagerTest, ListTest)
 
 TEST(BookManagerTest, UpdateTest)
 {
-    //EXPECT_EQ(1000, cubic(10));
+    zbbm::book_manager book_manager{ "BookDatabaseTest.zbbm" };
+    zbbm::book book{};
+    
+    bool result = false;
+    
+    book.author = "AuthorTest3";
+    book.co_authors = { "CoAuthor1", "CoAuthor2" };
+    book.isbn = "110987654321";
+    book.language = "en-us";
+    book.launch_date = "3/11/2022";
+    book.name = "BookName3";
+    book.publisher = "PublisherName3";
+
+    book_manager.add(book);
+
+    book_manager.save();
+
+    book_manager.clear();
+
+    book_manager.update();
+
+    std::optional<zbbm::book> verify_book = book_manager.find("110987654321");
+
+    if(verify_book.has_value())
+        result = true;
+
+    EXPECT_TRUE(result == true);
 };
 
 TEST(BookManagerTest, FindIterTest)
