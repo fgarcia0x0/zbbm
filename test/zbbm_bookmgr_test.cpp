@@ -5,7 +5,8 @@
 
 static void edit_book(zbbm::book& book)
 {
-    book.author   = "Zeca Pagodes";
+    book.author   = "AuthorTest2";
+    book.name     = "BookName2";
     book.isbn     = "123456789101";
     book.language = "en-us";
 }
@@ -33,7 +34,7 @@ TEST(BookManagerTest, AddTest)
 TEST(BookManagerTest, EditTest)
 {
     zbbm::book_manager book_manager{ "BookDatabaseTest.zbbm" };
-    zbbm::book mem_book;
+    zbbm::book mem_book{};
 
     std::string target_isbn = "994957872341";
 
@@ -50,10 +51,9 @@ TEST(BookManagerTest, EditTest)
 TEST(BookManagerTest, RemoveTest)
 {
     zbbm::book_manager book_manager{ "BookDatabaseTest.zbbm" };
-    std::optional<zbbm::book> book;
     std::string target_isbn = "994957872341";
 
-    book = book_manager.find(target_isbn);
+    std::optional<zbbm::book> book = book_manager.find(target_isbn);
 
     if (book.has_value())
     {
@@ -79,7 +79,7 @@ TEST(BookManagerTest, RemoveTest)
 
 TEST(BookManagerTest, ListTest)
 {
-    //EXPECT_EQ(1000, cubic(10));
+
 };
 
 TEST(BookManagerTest, FindTest)
@@ -107,7 +107,32 @@ TEST(BookManagerTest, ClearTest)
 
 TEST(BookManagerTest, SaveTest)
 {
+    zbbm::book_manager book_manager{ "BookDatabaseTest.zbbm" };
+    zbbm::book book{};
+    bool result = false;
+    
+    book.author = "AuthorTest2";
+    book.co_authors = { "CoAuthor1", "CoAuthor2" };
+    book.isbn = "110987654321";
+    book.language = "pt-br";
+    book.launch_date = "2/11/2022";
+    book.name = "BookName2";
+    book.publisher = "PublisherName2";
+    
+    book_manager.add(book);
 
+    book_manager.save();
+
+    book_manager.clear();
+
+    book_manager.update();
+
+    std::optional<zbbm::book> verify_book = book_manager.find("110987654321");
+
+    if(verify_book.has_value())
+        result = true;
+
+    EXPECT_TRUE(result == true);
 };
 
 TEST(BookManagerTest, SaveInPathTest)
@@ -117,5 +142,8 @@ TEST(BookManagerTest, SaveInPathTest)
 
 TEST(BookManagerTest, UpdateTest)
 {
-    
+    zbbm::book_manager book_manager{ "BookDatabaseTest.zbbm" };
+
+    // ???????
+
 };
