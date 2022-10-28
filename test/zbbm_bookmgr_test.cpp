@@ -87,6 +87,11 @@ TEST(BookManagerTest, FindTest)
     //EXPECT_EQ(1000, cubic(10));
 };
 
+TEST(BookManagerTest, FindIterTest)
+{
+    //EXPECT_EQ(1000, cubic(10));
+};
+
 TEST(BookManagerTest, ClearTest)
 {
     zbbm::book_manager book_manager{ "BookDatabaseTest.zbbm" };
@@ -103,4 +108,14 @@ TEST(BookManagerTest, ClearTest)
 TEST(BookManagerTest, SaveTest)
 {
 
+};
+
+TEST(BookManagerTest, SaveInPathTest)
+{
+
+};
+
+TEST(BookManagerTest, UpdateTest)
+{
+    
 };
