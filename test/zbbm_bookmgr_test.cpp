@@ -188,7 +188,30 @@ TEST(BookManagerTest, SaveTest)
 
 TEST(BookManagerTest, SaveInPathTest)
 {
+    zbbm::book_manager book_manager{ "BookDatabaseTest.zbbm" };
+    zbbm::book book{};
+    bool result = false;
+    
+    book.author = "AuthorTest4";
+    book.co_authors = { "CoAuthor1", "CoAuthor2" };
+    book.isbn = "110987654543";
+    book.language = "pt-br";
+    book.launch_date = "2/11/2022";
+    book.name = "BookName2";
+    book.publisher = "PublisherName2";
+    
+    book_manager.add(book);
 
+    book_manager.save( "NewBookDatabase.zbbm" );
+
+    zbbm::book_manager new_book_manager{ "NewBookDatabase.zbbm" };
+
+    std::optional<zbbm::book> verify_book = new_book_manager.find("110987654543");
+
+    if(verify_book.has_value())
+        result = true;
+
+    EXPECT_TRUE(result == true);
 };
 
 TEST(BookManagerTest, FindTest)
