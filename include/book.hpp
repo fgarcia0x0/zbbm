@@ -36,4 +36,8 @@ namespace zbbm
         return book1.isbn < book2.isbn;
     }
 
+    inline bool operator==(const book& book1, const book& book2)
+    {
+        return book1.isbn == book2.isbn;
+    }
 } // namespace zbbm
