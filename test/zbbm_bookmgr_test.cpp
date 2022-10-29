@@ -8,7 +8,6 @@ static void edit_book(zbbm::book& book)
 {
     book.author   = "AuthorTest2";
     book.name     = "BookName2";
-    book.isbn     = "123456789101";
     book.language = "en-us";
 }
 
@@ -35,18 +34,17 @@ TEST(BookManagerTest, AddTest)
 TEST(BookManagerTest, EditTest)
 {
     zbbm::book_manager book_manager{ "BookDatabaseTest.zbbm" };
+
     zbbm::book mem_book{};
+    mem_book.isbn = "987";
+    mem_book.author = "Test";
+    book_manager.add(mem_book);
 
-    std::string target_isbn = "994957872341";
+    book_manager.edit("987", edit_book);
+    auto result = book_manager.find("987");
 
-    auto result = book_manager.find(target_isbn);
-    mem_book = result.value();
-
-    if(result.has_value())
-        book_manager.edit("994957872341", edit_book);
-
-    EXPECT_TRUE(result != std::nullopt);
-    EXPECT_TRUE(result.value() != mem_book);
+    EXPECT_TRUE(result.has_value());
+    EXPECT_TRUE(result.value().author == "AuthorTest2");
 };
 
 TEST(BookManagerTest, RemoveTest)
